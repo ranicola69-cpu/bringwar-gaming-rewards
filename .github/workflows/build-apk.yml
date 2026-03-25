@@ -59,6 +59,7 @@ jobs:
       - name: Apply app icon
         working-directory: artifacts/earnflow
         run: |
+          npm install -g @capacitor/assets
           mkdir -p resources
           cp public/icon.png resources/icon.png
           npx @capacitor/assets generate --android --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000'
