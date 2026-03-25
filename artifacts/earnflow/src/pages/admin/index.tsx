@@ -81,14 +81,43 @@ function StatsView() {
   const { data: stats, isLoading } = useGetStats();
   if (isLoading || !stats) return <div className="text-white">Loading...</div>;
 
+  const grossRev = Number((stats as any).grossRevenueUsd ?? 0);
+  const netProfit = Number((stats as any).netProfitUsd ?? 0);
+  const feeRev = Number((stats as any).feeRevenueUsd ?? 0);
+  const margin = (stats as any).profitMarginPct ?? "0.0";
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard title="Total Users" value={stats.totalUsers} />
-      <StatCard title="Active Offers" value={stats.totalOffers} />
-      <StatCard title="Pending Completions" value={stats.pendingCompletions} highlight />
-      <StatCard title="Pending Withdrawals" value={stats.pendingWithdrawals} highlight />
-      <StatCard title="Total Points Awarded" value={formatPoints(stats.totalPointsAwarded)} />
-      <StatCard title="Total Cash Paid" value={formatCurrency(stats.totalCashPaid)} />
+    <div className="space-y-6">
+      {/* Profit banner */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="col-span-1 sm:col-span-2 bg-gradient-to-r from-green-950 to-emerald-950 border border-green-700/40 rounded-xl p-5">
+          <div className="text-xs text-green-400 uppercase tracking-widest font-bold mb-1">💰 Net Profit</div>
+          <div className="text-4xl font-black text-green-300">${netProfit.toFixed(2)}</div>
+          <div className="text-xs text-green-600 mt-1">After all payouts</div>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+          <div className="text-xs text-zinc-400 uppercase tracking-widest font-bold mb-1">📥 Gross Revenue</div>
+          <div className="text-2xl font-black text-white">${grossRev.toFixed(2)}</div>
+          <div className="text-xs text-zinc-500 mt-1">From ad networks</div>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+          <div className="text-xs text-zinc-400 uppercase tracking-widest font-bold mb-1">📊 Margin</div>
+          <div className="text-2xl font-black text-yellow-300">{margin}%</div>
+          <div className="text-xs text-zinc-500 mt-1">Fee rev: ${feeRev.toFixed(2)}</div>
+        </div>
+      </div>
+
+      {/* Regular stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Users" value={stats.totalUsers} />
+        <StatCard title="Active Offers" value={stats.totalOffers} />
+        <StatCard title="Pending Completions" value={stats.pendingCompletions} highlight />
+        <StatCard title="Pending Withdrawals" value={stats.pendingWithdrawals} highlight />
+        <StatCard title="Postbacks Received" value={(stats as any).postbackCount ?? 0} />
+        <StatCard title="Game Plays" value={(stats as any).gamePlaysCount ?? 0} />
+        <StatCard title="Points Awarded" value={formatPoints(stats.totalPointsAwarded)} />
+        <StatCard title="Total Paid Out" value={formatCurrency(stats.totalCashPaid)} />
+      </div>
     </div>
   );
 }
