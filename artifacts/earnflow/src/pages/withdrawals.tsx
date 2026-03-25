@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useListWithdrawals, useRequestWithdrawal, getListWithdrawalsQueryKey, getGetMeQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,24 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, formatPoints } from "@/lib/utils";
 import { format } from "date-fns";
-import { Wallet, ArrowRightLeft } from "lucide-react";
+import { Wallet, ArrowRightLeft, Info } from "lucide-react";
+
+type WithdrawConfig = { minWithdrawal: number; processingFee: number; pointsToCash: number };
+
+const METHOD_LABELS: Record<string, string> = {
+  paypal: "💳 PayPal",
+  crypto: "₿ Crypto",
+  giftcard: "🎁 Gift Card",
+  cashapp: "💚 Cash App",
+  venmo: "🔵 Venmo",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  pending:  "bg-yellow-600",
+  approved: "bg-blue-600",
+  paid:     "bg-green-600",
+  rejected: "bg-red-600",
+};
 
 export default function Withdrawals() {
   const { user } = useAuth();
@@ -19,142 +36,179 @@ export default function Withdrawals() {
   const { data: withdrawals, isLoading } = useListWithdrawals();
   const requestMutation = useRequestWithdrawal();
 
+  const { data: config } = useQuery<WithdrawConfig>({
+    queryKey: ["withdraw-config"],
+    queryFn: () => fetch("/api/withdrawals/config").then(r => r.json()),
+  });
+
+  const MIN  = config?.minWithdrawal  ?? 1500;
+  const FEE  = config?.processingFee  ?? 100;
+  const RATE = config?.pointsToCash   ?? 0.01;
+
   const [points, setPoints] = useState<number | "">("");
   const [method, setMethod] = useState("paypal");
   const [details, setDetails] = useState("");
 
-  const cashValue = typeof points === 'number' ? points / 100 : 0;
+  const cashValue   = typeof points === "number" ? points * RATE : 0;
+  const totalNeeded = typeof points === "number" ? points + FEE : 0;
+  const canAfford   = totalNeeded <= (user?.pointsBalance ?? 0);
+  const meetsMin    = typeof points === "number" && points >= MIN;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!points || points < 500) {
-      toast({ title: "Invalid amount", description: "Minimum withdrawal is 500 points ($5.00)", variant: "destructive" });
+    if (!meetsMin) {
+      toast({ title: "Too low", description: `Minimum withdrawal is ${MIN.toLocaleString()} pts`, variant: "destructive" });
       return;
     }
-    if (points > (user?.pointsBalance || 0)) {
-      toast({ title: "Insufficient funds", description: "You don't have enough points.", variant: "destructive" });
+    if (!canAfford) {
+      toast({ title: "Not enough pts", description: `You need ${totalNeeded.toLocaleString()} pts (including ${FEE} fee)`, variant: "destructive" });
       return;
     }
-
     try {
-      await requestMutation.mutateAsync({ data: { points, method: method as any, paymentDetails: details } });
-      toast({ title: "Success", description: "Withdrawal requested successfully!" });
-      setPoints("");
-      setDetails("");
+      await requestMutation.mutateAsync({ data: { points: points as number, method: method as any, paymentDetails: details } });
+      toast({ title: "✅ Withdrawal submitted!", description: `$${cashValue.toFixed(2)} is on its way.` });
+      setPoints(""); setDetails("");
       queryClient.invalidateQueries({ queryKey: getListWithdrawalsQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
     } catch (err: any) {
-      toast({ title: "Error", description: err?.response?.data?.error || "Failed to request withdrawal", variant: "destructive" });
+      toast({ title: "Error", description: err?.response?.data?.error || "Failed", variant: "destructive" });
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6 border-white/10 bg-card/50">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-                  <Wallet className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white font-display">Cash Out</h2>
-                  <p className="text-sm text-zinc-400">Available: {formatPoints(user?.pointsBalance || 0)} pts</p>
-                </div>
-              </div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 className="text-3xl font-black text-white mb-8 uppercase tracking-tight flex items-center gap-3">
+          <Wallet className="h-7 w-7 text-primary" /> Cash Out
+        </h1>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Balance */}
+            <Card className="p-5 border-green-800/40 bg-green-950/20">
+              <div className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Your Balance</div>
+              <div className="text-3xl font-black text-green-400">{(user?.pointsBalance ?? 0).toLocaleString()} pts</div>
+              <div className="text-sm text-zinc-400">${((user?.pointsBalance ?? 0) * RATE).toFixed(2)} available</div>
+            </Card>
+
+            {/* Fee notice */}
+            <div className="flex gap-2 p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-400">
+              <Info className="h-4 w-4 shrink-0 text-yellow-500 mt-0.5" />
+              <div>
+                <strong className="text-white">Withdrawal fee:</strong> {FEE} pts ($1.00) per request.
+                Minimum: {MIN.toLocaleString()} pts + {FEE} fee = {(MIN + FEE).toLocaleString()} pts total.
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Card className="p-5 border-white/10 bg-card/50 space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-zinc-300 mb-1.5 block">Points to Withdraw</label>
-                  <Input 
-                    type="number" 
-                    min="500" 
-                    step="100"
-                    required 
+                  <label className="text-sm font-bold text-zinc-300 mb-2 block">Points to Cash Out</label>
+                  <Input
+                    type="number"
+                    min={MIN}
+                    max={user?.pointsBalance ?? 0}
                     value={points}
                     onChange={e => setPoints(e.target.value ? parseInt(e.target.value) : "")}
-                    placeholder="Min. 500"
+                    placeholder={`Min ${MIN.toLocaleString()}`}
+                    className="bg-black/40 border-white/10 text-white text-lg font-bold"
+                    required
                   />
-                  {cashValue > 0 && (
-                    <div className="mt-2 text-sm text-emerald-400 font-medium flex items-center gap-1">
-                      <ArrowRightLeft className="w-3 h-3" /> You will get {formatCurrency(cashValue)}
+                  {typeof points === "number" && points > 0 && (
+                    <div className={`text-xs mt-1.5 ${canAfford && meetsMin ? "text-green-400" : "text-red-400"}`}>
+                      = ${cashValue.toFixed(2)} cash · {FEE} pt fee · need {totalNeeded.toLocaleString()} total
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-zinc-300 mb-1.5 block">Payment Method</label>
-                  <select 
-                    className="flex h-12 w-full rounded-xl border border-border bg-background/50 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-white"
-                    value={method}
-                    onChange={e => setMethod(e.target.value)}
-                  >
-                    <option value="paypal">PayPal</option>
-                    <option value="venmo">Venmo</option>
-                    <option value="cashapp">CashApp</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                    <option value="gift_card">Gift Card</option>
-                  </select>
+                  <label className="text-sm font-bold text-zinc-300 mb-2 block">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(METHOD_LABELS).map(([key, label]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setMethod(key)}
+                        className={`py-2 px-3 text-sm font-bold rounded-lg border transition-all text-left ${
+                          method === key
+                            ? "border-primary bg-primary/10 text-white"
+                            : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-600"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-zinc-300 mb-1.5 block">Account Details / Email</label>
-                  <Input 
-                    required 
+                  <label className="text-sm font-bold text-zinc-300 mb-2 block">Payment Details</label>
+                  <Input
                     value={details}
                     onChange={e => setDetails(e.target.value)}
-                    placeholder="Enter your payment info"
+                    placeholder={
+                      method === "paypal"  ? "your@paypal.com" :
+                      method === "crypto"  ? "Wallet address (BTC/ETH/USDT)" :
+                      method === "cashapp" ? "$cashtag" :
+                      method === "venmo"   ? "@venmo-username" :
+                      "Gift card preference"
+                    }
+                    className="bg-black/40 border-white/10"
+                    required
                   />
                 </div>
 
-                <Button type="submit" className="w-full mt-2" isLoading={requestMutation.isPending}>
-                  Request {cashValue > 0 ? formatCurrency(cashValue) : ""}
+                <Button
+                  type="submit"
+                  className="w-full font-black text-sm uppercase tracking-wide"
+                  isLoading={requestMutation.isPending}
+                  disabled={!meetsMin || !canAfford || !details.trim()}
+                >
+                  Request ${cashValue.toFixed(2)} Payout
                 </Button>
-              </form>
-            </Card>
+              </Card>
+            </form>
           </div>
 
-          {/* History Section */}
+          {/* History */}
           <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold font-display text-white mb-6">Withdrawal History</h2>
-            <Card className="border-white/10 bg-card/50 overflow-hidden">
-              {isLoading ? (
-                <div className="p-8 text-center text-zinc-500">Loading...</div>
-              ) : !withdrawals || withdrawals.length === 0 ? (
-                <div className="p-12 text-center text-zinc-500">No withdrawals yet.</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-zinc-400 uppercase bg-black/40 border-b border-white/5">
-                      <tr>
-                        <th className="px-6 py-4 font-medium">Date</th>
-                        <th className="px-6 py-4 font-medium">Method</th>
-                        <th className="px-6 py-4 font-medium">Amount</th>
-                        <th className="px-6 py-4 font-medium">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {withdrawals.map((w) => (
-                        <tr key={w.id} className="hover:bg-white/[0.02]">
-                          <td className="px-6 py-4 text-zinc-300">{format(new Date(w.createdAt), "MMM d, yyyy")}</td>
-                          <td className="px-6 py-4 text-white capitalize">{w.method.replace('_', ' ')}</td>
-                          <td className="px-6 py-4 font-bold text-primary">{formatCurrency(w.cashAmount)}</td>
-                          <td className="px-6 py-4">
-                            <Badge variant={w.status === 'paid' || w.status === 'approved' ? 'success' : w.status === 'rejected' ? 'destructive' : 'warning'}>
-                              {w.status}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
+            <h2 className="text-lg font-black text-white uppercase tracking-tight mb-4 flex items-center gap-2">
+              <ArrowRightLeft className="h-5 w-5" /> History
+            </h2>
+            {isLoading ? (
+              <div className="space-y-2">{[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 bg-zinc-900 rounded-lg animate-pulse" />
+              ))}</div>
+            ) : !withdrawals?.length ? (
+              <Card className="p-8 border-white/10 bg-card/30 text-center">
+                <p className="text-zinc-500">No withdrawals yet.</p>
+                <p className="text-zinc-600 text-sm mt-1">Start earning to cash out!</p>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {withdrawals.map((w: any) => (
+                  <Card key={w.id} className="p-4 border-white/10 bg-card/50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-black text-white">{formatPoints(w.points)} pts</span>
+                          <span className="text-zinc-500 text-sm">→</span>
+                          <span className="text-green-400 font-bold">{formatCurrency(w.cashAmount)}</span>
+                          <Badge className={`${STATUS_COLORS[w.status] ?? "bg-zinc-700"} text-white text-xs capitalize`}>
+                            {w.status}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-zinc-500">
+                          {METHOD_LABELS[w.method] ?? w.method} · {w.paymentDetails} · {w.createdAt ? format(new Date(w.createdAt), "MMM d, yyyy") : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
