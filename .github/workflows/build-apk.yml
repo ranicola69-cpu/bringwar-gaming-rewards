@@ -56,6 +56,13 @@ jobs:
           npx cap add android 2>/dev/null || true
           npx cap sync android
 
+      - name: Apply app icon
+        working-directory: artifacts/earnflow
+        run: |
+          mkdir -p resources
+          cp public/icon.png resources/icon.png
+          npx @capacitor/assets generate --android --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000'
+
       - name: Grant Gradle execute permission
         working-directory: artifacts/earnflow/android
         run: chmod +x gradlew
