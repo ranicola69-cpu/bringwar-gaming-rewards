@@ -59,7 +59,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Generate keystore
-        working-directory: artifacts/earnflow/android
+        working-directory: artifacts/earnflow/android/app
         run: |
           keytool -genkey -v \
             -keystore bringwar.keystore \
@@ -74,8 +74,9 @@ jobs:
       - name: Build release APK
         working-directory: artifacts/earnflow/android
         run: |
+          KEYSTORE_PATH="$(pwd)/app/bringwar.keystore"
           ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=bringwar.keystore \
+            -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
             -Pandroid.injected.signing.store.password=bringwar123 \
             -Pandroid.injected.signing.key.alias=bringwar \
             -Pandroid.injected.signing.key.password=bringwar123 \
