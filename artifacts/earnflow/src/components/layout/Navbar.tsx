@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Activity, Coins, Gift, LayoutDashboard, LogOut, ShieldAlert, Users, Wallet, Zap } from "lucide-react";
+import { Activity, Coins, Dices, Gift, LayoutDashboard, LogOut, Package, ShieldAlert, Users, Wallet, Zap } from "lucide-react";
 import { formatPoints } from "@/lib/utils";
 import { useState } from "react";
 
@@ -15,6 +15,8 @@ export function Navbar() {
     { href: "/earn", label: "Earn", icon: Zap, show: isAuthenticated },
     { href: "/surveys", label: "Surveys", icon: Activity, show: isAuthenticated },
     { href: "/offer-walls", label: "Offers", icon: Coins, show: isAuthenticated },
+    { href: "/loot-box", label: "Loot Box", icon: Package, show: isAuthenticated },
+    { href: "/spin-wheel", label: "Spin", icon: Dices, show: isAuthenticated },
     { href: "/daily-bonus", label: "Daily", icon: Gift, show: isAuthenticated },
     { href: "/referral", label: "Refer", icon: Users, show: isAuthenticated },
     { href: "/withdrawals", label: "Cashout", icon: Wallet, show: isAuthenticated },
