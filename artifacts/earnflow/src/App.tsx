@@ -15,6 +15,7 @@ import OfferDetail from "@/pages/offers/detail";
 import MyCompletions from "@/pages/completions";
 import Withdrawals from "@/pages/withdrawals";
 import AdminDashboard from "@/pages/admin/index";
+import PublisherSetup from "@/pages/admin/setup";
 import EarnHub from "@/pages/earn/index";
 import Surveys from "@/pages/surveys/index";
 import OfferWalls from "@/pages/offer-walls/index";
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/my-completions"><ProtectedRoute component={MyCompletions} /></Route>
       <Route path="/withdrawals"><ProtectedRoute component={Withdrawals} /></Route>
       <Route path="/admin"><ProtectedRoute component={AdminDashboard} /></Route>
+      <Route path="/admin/setup"><ProtectedRoute component={PublisherSetup} /></Route>
 
       <Route component={NotFound} />
     </Switch>
