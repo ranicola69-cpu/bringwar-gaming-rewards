@@ -1,6 +1,6 @@
 import { pgTable, serial, integer, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
 
-export const gameTypeEnum = pgEnum("game_type", ["loot_box", "spin_wheel"]);
+export const gameTypeEnum = pgEnum("game_type", ["loot_box", "spin_wheel", "streak_shield"]);
 
 export const gamePlaysTable = pgTable("game_plays", {
   id: serial("id").primaryKey(),
