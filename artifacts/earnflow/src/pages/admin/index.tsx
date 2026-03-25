@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Navbar } from "@/components/layout/Navbar";
 import { Card } from "@/components/ui/card";
@@ -57,6 +58,11 @@ export default function AdminDashboard() {
               {tab}
             </button>
           ))}
+          <Link href="/admin/setup">
+            <button className="px-6 py-3 rounded-none text-sm font-bold uppercase tracking-widest bg-green-900 text-green-300 border border-green-700 hover:bg-green-800 transition-all">
+              🔧 Publisher Setup
+            </button>
+          </Link>
         </div>
 
         {activeTab === 'stats' && <StatsView />}
