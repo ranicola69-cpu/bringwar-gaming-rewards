@@ -35,6 +35,9 @@ jobs:
 
       - name: Build web app
         run: pnpm --filter @workspace/earnflow run build
+        env:
+          PORT: "3000"
+          BASE_PATH: "/"
 
       - name: Setup Java
         uses: actions/setup-java@v4
