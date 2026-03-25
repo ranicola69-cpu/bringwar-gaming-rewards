@@ -10,6 +10,7 @@ import autoGenerateRouter from "./auto-generate.js";
 import postbackRouter from "./postback.js";
 import dailyRewardRouter from "./daily-reward.js";
 import networksRouter from "./networks.js";
+import gamesRouter from "./games.js";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use("/admin", autoGenerateRouter);
 router.use(postbackRouter);
 router.use(dailyRewardRouter);
 router.use(networksRouter);
+router.use(gamesRouter);
 
 export default router;
