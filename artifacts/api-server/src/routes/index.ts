@@ -7,6 +7,9 @@ import withdrawalsRouter from "./withdrawals.js";
 import usersRouter from "./users.js";
 import statsRouter from "./stats.js";
 import autoGenerateRouter from "./auto-generate.js";
+import postbackRouter from "./postback.js";
+import dailyRewardRouter from "./daily-reward.js";
+import networksRouter from "./networks.js";
 
 const router: IRouter = Router();
 
@@ -18,5 +21,8 @@ router.use("/withdrawals", withdrawalsRouter);
 router.use("/users", usersRouter);
 router.use("/stats", statsRouter);
 router.use("/admin", autoGenerateRouter);
+router.use(postbackRouter);
+router.use(dailyRewardRouter);
+router.use(networksRouter);
 
 export default router;
