@@ -1,0 +1,26 @@
+{
+  "name": "@workspace/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "hello": "tsx ./src/hello.ts",
+    "seed-admin": "tsx ./src/seed-admin.ts",
+    "push-to-github": "tsx ./src/push-to-github.ts",
+    "update-github": "tsx ./src/update-github-files.ts",
+    "push-missing": "tsx ./src/push-missing-files.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@workspace/db": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "catalog:",
+    "nanoid": "^5.1.5",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "catalog:",
+    "tsx": "catalog:"
+  }
+}
