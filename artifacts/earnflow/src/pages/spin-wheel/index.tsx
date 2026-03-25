@@ -1,20 +1,23 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
+type Segment = { label: string; pts: number; color: string };
+
 type WheelStatus = {
   canSpin: boolean;
   lastWin: { pts: number; label: string } | null;
-  segments: { label: string; pts: number; color: string }[];
+  segments: Segment[];
   resetsAt: string;
 };
 
 type SpinResult = { pts: number; label: string; segmentIndex: number };
 
-function drawWheel(canvas: HTMLCanvasElement, segments: WheelStatus["segments"], rotation: number) {
-  const ctx = canvas.getContext("2d")!;
+function drawWheel(canvas: HTMLCanvasElement, segments: Segment[], rotation: number) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
   const cx = canvas.width / 2;
   const cy = canvas.height / 2;
   const r = cx - 8;
@@ -42,6 +45,8 @@ function drawWheel(canvas: HTMLCanvasElement, segments: WheelStatus["segments"],
     ctx.textAlign = "right";
     ctx.fillStyle = "#fff";
     ctx.font = "bold 13px sans-serif";
+    ctx.shadowColor = "rgba(0,0,0,0.6)";
+    ctx.shadowBlur = 4;
     ctx.fillText(seg.label, r - 10, 5);
     ctx.restore();
   });
@@ -49,7 +54,7 @@ function drawWheel(canvas: HTMLCanvasElement, segments: WheelStatus["segments"],
   // Center hub
   ctx.beginPath();
   ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
-  ctx.fillStyle = "#18181b";
+  ctx.fillStyle = "#09090b";
   ctx.fill();
   ctx.strokeStyle = "#fff";
   ctx.lineWidth = 3;
@@ -60,19 +65,21 @@ export default function SpinWheel() {
   const qc = useQueryClient();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
+  const rotationRef = useRef(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<SpinResult | null>(null);
-  const rotationRef = useRef(0);
 
   const { data: status } = useQuery<WheelStatus>({
     queryKey: ["spin-wheel-status"],
     queryFn: () => fetch("/api/games/spin-wheel/status").then(r => r.json()),
-    onSuccess: (data) => {
-      if (canvasRef.current && data.segments.length) {
-        drawWheel(canvasRef.current, data.segments, rotationRef.current);
-      }
-    },
-  } as any);
+  });
+
+  // Draw wheel whenever status loads
+  useEffect(() => {
+    if (status?.segments?.length && canvasRef.current) {
+      drawWheel(canvasRef.current, status.segments, rotationRef.current);
+    }
+  }, [status]);
 
   const spinMutation = useMutation({
     mutationFn: () =>
@@ -80,27 +87,32 @@ export default function SpinWheel() {
         if (!r.ok) throw new Error((await r.json()).error);
         return r.json() as Promise<SpinResult>;
       }),
+    onMutate: () => setSpinning(true),
+    onError: (err: Error) => {
+      setSpinning(false);
+      toast({ title: "Can't spin", description: err.message, variant: "destructive" });
+    },
     onSuccess: (data) => {
-      if (!status?.segments || !canvasRef.current) return;
+      if (!status?.segments?.length || !canvasRef.current) return;
 
       const segs = status.segments;
       const arc = (2 * Math.PI) / segs.length;
-      // Target: land on the winning segment
       const targetAngle = -(data.segmentIndex * arc + arc / 2);
       const spins = 5 * 2 * Math.PI;
-      const finalRot = targetAngle + spins;
+      const finalDelta = targetAngle + spins;
       const duration = 4000;
-      const start = performance.now();
+      const startTime = performance.now();
       const startRot = rotationRef.current;
 
       const animate = (now: number) => {
-        const elapsed = now - start;
+        const elapsed = now - startTime;
         const t = Math.min(elapsed / duration, 1);
-        // Ease-out cubic
-        const ease = 1 - Math.pow(1 - t, 3);
-        rotationRef.current = startRot + finalRot * ease;
+        const ease = 1 - Math.pow(1 - t, 3); // cubic ease-out
+        rotationRef.current = startRot + finalDelta * ease;
 
-        if (canvasRef.current) drawWheel(canvasRef.current, segs, rotationRef.current);
+        if (canvasRef.current) {
+          drawWheel(canvasRef.current, segs, rotationRef.current);
+        }
 
         if (t < 1) {
           animRef.current = requestAnimationFrame(animate);
@@ -112,13 +124,10 @@ export default function SpinWheel() {
           qc.invalidateQueries({ queryKey: ["me"] });
         }
       };
+
+      cancelAnimationFrame(animRef.current);
       animRef.current = requestAnimationFrame(animate);
     },
-    onError: (err: Error) => {
-      setSpinning(false);
-      toast({ title: "Can't spin", description: err.message, variant: "destructive" });
-    },
-    onMutate: () => setSpinning(true),
   });
 
   return (
@@ -126,32 +135,33 @@ export default function SpinWheel() {
       <Navbar />
       <div className="max-w-xl mx-auto px-4 py-10 text-center">
         <h1 className="text-4xl font-black text-white mb-1 uppercase tracking-tight">🎡 Spin & Win</h1>
-        <p className="text-zinc-400 mb-6">One free spin per day. Up to 200 pts!</p>
+        <p className="text-zinc-400 mb-5">One free spin per day. Up to 200 pts!</p>
 
         {/* Pointer */}
         <div className="flex justify-center mb-1">
-          <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-t-[24px] border-l-transparent border-r-transparent border-t-white drop-shadow-lg" />
+          <div
+            className="w-0 h-0 drop-shadow-lg"
+            style={{
+              borderLeft: "12px solid transparent",
+              borderRight: "12px solid transparent",
+              borderTop: "24px solid white",
+            }}
+          />
         </div>
 
-        {/* Wheel */}
+        {/* Canvas wheel */}
         <div className="flex justify-center mb-6">
           <canvas
             ref={canvasRef}
             width={320}
             height={320}
             className="rounded-full shadow-[0_0_40px_rgba(139,92,246,0.4)]"
-            ref={(el) => {
-              (canvasRef as any).current = el;
-              if (el && status?.segments?.length) {
-                drawWheel(el, status.segments, rotationRef.current);
-              }
-            }}
           />
         </div>
 
-        {/* Result banner */}
+        {/* Win banner */}
         {result && (
-          <div className="mb-6 py-3 px-6 bg-green-900/40 border border-green-600/50 rounded-xl">
+          <div className="mb-5 py-3 px-6 bg-green-900/40 border border-green-600/50 rounded-xl">
             <p className="text-green-300 font-black text-2xl">+{result.pts} pts</p>
             <p className="text-green-500 text-sm">{result.label} — credited to your balance!</p>
           </div>
@@ -170,6 +180,21 @@ export default function SpinWheel() {
           <p className="text-zinc-600 text-sm mt-4">
             Last spin: <span className="text-zinc-400">{status.lastWin.label} (+{status.lastWin.pts} pts)</span>
           </p>
+        )}
+
+        {/* Segments legend */}
+        {status?.segments && (
+          <div className="mt-10 text-left">
+            <h3 className="text-zinc-400 text-sm font-bold uppercase tracking-wider mb-3">Prize Segments</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {status.segments.map((s) => (
+                <div key={s.label} className="rounded-lg p-2 text-center" style={{ background: s.color + "33", border: `1px solid ${s.color}55` }}>
+                  <div className="font-black text-white text-sm">{s.pts}</div>
+                  <div className="text-xs text-zinc-400">pts</div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
