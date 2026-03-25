@@ -20,6 +20,8 @@ import Surveys from "@/pages/surveys/index";
 import OfferWalls from "@/pages/offer-walls/index";
 import DailyBonus from "@/pages/daily-bonus/index";
 import Referral from "@/pages/referral/index";
+import LootBox from "@/pages/loot-box/index";
+import SpinWheel from "@/pages/spin-wheel/index";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -54,6 +56,8 @@ function Router() {
       <Route path="/offer-walls"><ProtectedRoute component={OfferWalls} /></Route>
       <Route path="/daily-bonus"><ProtectedRoute component={DailyBonus} /></Route>
       <Route path="/referral"><ProtectedRoute component={Referral} /></Route>
+      <Route path="/loot-box"><ProtectedRoute component={LootBox} /></Route>
+      <Route path="/spin-wheel"><ProtectedRoute component={SpinWheel} /></Route>
       <Route path="/offers"><ProtectedRoute component={OffersWall} /></Route>
       <Route path="/offers/:id"><ProtectedRoute component={OfferDetail} /></Route>
       <Route path="/my-completions"><ProtectedRoute component={MyCompletions} /></Route>
