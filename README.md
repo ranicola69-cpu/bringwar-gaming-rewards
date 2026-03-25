@@ -19,7 +19,9 @@
 
 [![Download APK](https://img.shields.io/badge/⬇%20DOWNLOAD%20APK-v1.1.0-red?style=for-the-badge&logo=android)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v1.1.0/BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk)
 &nbsp;&nbsp;
-[![Donate via CashApp](https://img.shields.io/badge/💸%20DONATE-$ranicola1-00D632?style=for-the-badge&logo=cashapp)](https://cash.app/$ranicola1)
+[![Donate via CashApp](https://img.shields.io/badge/💸%20DONATE-%24ranicola1-00D632?style=for-the-badge&logo=cashapp)](https://cash.app/$ranicola1)
+&nbsp;&nbsp;
+[![Donate via PayPal](https://img.shields.io/badge/💰%20PAYPAL-Donate-003087?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate?business=Ranicola69%40gmail.com)
 
 </div>
 
@@ -58,7 +60,9 @@ Requires Android 8.0+. Enable *Install from unknown sources* before installing.
 
 <div align="center">
 
-[![CashApp](https://img.shields.io/badge/CashApp-$ranicola1-00D632?style=for-the-badge&logo=cashapp&logoColor=white)](https://cash.app/$ranicola1)
+[![CashApp](https://img.shields.io/badge/CashApp-%24ranicola1-00D632?style=for-the-badge&logo=cashapp&logoColor=white)](https://cash.app/$ranicola1)
+
+[![PayPal](https://img.shields.io/badge/PayPal-Ranicola69%40gmail.com-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/donate?business=Ranicola69%40gmail.com)
 
 *All proceeds support independent research and development under DPHMS.*
 
