@@ -15,11 +15,15 @@ import OfferDetail from "@/pages/offers/detail";
 import MyCompletions from "@/pages/completions";
 import Withdrawals from "@/pages/withdrawals";
 import AdminDashboard from "@/pages/admin/index";
+import EarnHub from "@/pages/earn/index";
+import Surveys from "@/pages/surveys/index";
+import OfferWalls from "@/pages/offer-walls/index";
+import DailyBonus from "@/pages/daily-bonus/index";
+import Referral from "@/pages/referral/index";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
-// Protected Route Component
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -42,15 +46,20 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
-      
+
       {/* Protected Routes */}
       <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
+      <Route path="/earn"><ProtectedRoute component={EarnHub} /></Route>
+      <Route path="/surveys"><ProtectedRoute component={Surveys} /></Route>
+      <Route path="/offer-walls"><ProtectedRoute component={OfferWalls} /></Route>
+      <Route path="/daily-bonus"><ProtectedRoute component={DailyBonus} /></Route>
+      <Route path="/referral"><ProtectedRoute component={Referral} /></Route>
       <Route path="/offers"><ProtectedRoute component={OffersWall} /></Route>
       <Route path="/offers/:id"><ProtectedRoute component={OfferDetail} /></Route>
       <Route path="/my-completions"><ProtectedRoute component={MyCompletions} /></Route>
       <Route path="/withdrawals"><ProtectedRoute component={Withdrawals} /></Route>
       <Route path="/admin"><ProtectedRoute component={AdminDashboard} /></Route>
-      
+
       <Route component={NotFound} />
     </Switch>
   );
