@@ -1,0 +1,674 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: EarnFlow Rewards Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: offers
+    description: Offer management
+  - name: users
+    description: User management
+  - name: transactions
+    description: Points and withdrawals
+  - name: admin
+    description: Admin operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /offers:
+    get:
+      operationId: listOffers
+      tags: [offers]
+      summary: List all active offers
+      responses:
+        "200":
+          description: List of offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer"
+    post:
+      operationId: createOffer
+      tags: [admin, offers]
+      summary: Create a new offer (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOfferRequest"
+      responses:
+        "200":
+          description: Created offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  /offers/{id}:
+    get:
+      operationId: getOffer
+      tags: [offers]
+      summary: Get a single offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+    put:
+      operationId: updateOffer
+      tags: [admin, offers]
+      summary: Update an offer (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOfferRequest"
+      responses:
+        "200":
+          description: Updated offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+    delete:
+      operationId: deleteOffer
+      tags: [admin, offers]
+      summary: Delete an offer (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /offers/{id}/complete:
+    post:
+      operationId: completeOffer
+      tags: [offers]
+      summary: Mark an offer as completed by the current user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteOfferRequest"
+      responses:
+        "200":
+          description: Offer completion submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferCompletion"
+
+  /completions:
+    get:
+      operationId: listCompletions
+      tags: [admin]
+      summary: List all offer completions (admin only)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        "200":
+          description: Completions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OfferCompletion"
+
+  /completions/{id}/approve:
+    post:
+      operationId: approveCompletion
+      tags: [admin]
+      summary: Approve an offer completion and credit points
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferCompletion"
+
+  /completions/{id}/reject:
+    post:
+      operationId: rejectCompletion
+      tags: [admin]
+      summary: Reject an offer completion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectRequest"
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferCompletion"
+
+  /withdrawals:
+    get:
+      operationId: listWithdrawals
+      tags: [transactions]
+      summary: List withdrawals (user sees own, admin sees all)
+      responses:
+        "200":
+          description: Withdrawals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Withdrawal"
+    post:
+      operationId: requestWithdrawal
+      tags: [transactions]
+      summary: Request a withdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalRequest"
+      responses:
+        "200":
+          description: Withdrawal requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Withdrawal"
+
+  /withdrawals/{id}/approve:
+    post:
+      operationId: approveWithdrawal
+      tags: [admin]
+      summary: Approve a withdrawal (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Withdrawal"
+
+  /withdrawals/{id}/reject:
+    post:
+      operationId: rejectWithdrawal
+      tags: [admin]
+      summary: Reject a withdrawal (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectRequest"
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Withdrawal"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [admin]
+      summary: List all users (admin only)
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{id}/completions:
+    get:
+      operationId: getUserCompletions
+      tags: [users]
+      summary: Get current user's completions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User completions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OfferCompletion"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [admin]
+      summary: Platform stats (admin only)
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        referralCode:
+          type: string
+      required: [username, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        pointsBalance:
+          type: integer
+        totalEarned:
+          type: integer
+        referralCode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, username, email, role, pointsBalance, totalEarned, referralCode, createdAt]
+
+    Offer:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [survey, game, app, shopping, signup, referral, other]
+        points:
+          type: integer
+        cashValue:
+          type: number
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        estimatedTime:
+          type: string
+        instructions:
+          type: string
+        imageUrl:
+          type: string
+        isActive:
+          type: boolean
+        completionCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, description, category, points, cashValue, difficulty, estimatedTime, instructions, isActive, completionCount, createdAt]
+
+    CreateOfferRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [survey, game, app, shopping, signup, referral, other]
+        points:
+          type: integer
+        cashValue:
+          type: number
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        estimatedTime:
+          type: string
+        instructions:
+          type: string
+        imageUrl:
+          type: string
+        isActive:
+          type: boolean
+      required: [title, description, category, points, cashValue, difficulty, estimatedTime, instructions, isActive]
+
+    CompleteOfferRequest:
+      type: object
+      properties:
+        proof:
+          type: string
+        notes:
+          type: string
+      required: []
+
+    OfferCompletion:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        offerId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        proof:
+          type: string
+        notes:
+          type: string
+        adminNotes:
+          type: string
+        pointsAwarded:
+          type: integer
+        offer:
+          $ref: "#/components/schemas/Offer"
+        user:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, userId, offerId, status, createdAt, updatedAt]
+
+    WithdrawalRequest:
+      type: object
+      properties:
+        points:
+          type: integer
+        method:
+          type: string
+          enum: [paypal, venmo, cashapp, bank_transfer, gift_card]
+        paymentDetails:
+          type: string
+      required: [points, method, paymentDetails]
+
+    Withdrawal:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        points:
+          type: integer
+        cashAmount:
+          type: number
+        method:
+          type: string
+          enum: [paypal, venmo, cashapp, bank_transfer, gift_card]
+        paymentDetails:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, paid, rejected]
+        adminNotes:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, userId, points, cashAmount, method, paymentDetails, status, createdAt, updatedAt]
+
+    RejectRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      required: [reason]
+
+    PlatformStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalOffers:
+          type: integer
+        totalCompletions:
+          type: integer
+        pendingCompletions:
+          type: integer
+        totalPointsAwarded:
+          type: integer
+        totalWithdrawals:
+          type: integer
+        pendingWithdrawals:
+          type: integer
+        totalCashPaid:
+          type: number
+      required: [totalUsers, totalOffers, totalCompletions, pendingCompletions, totalPointsAwarded, totalWithdrawals, pendingWithdrawals, totalCashPaid]
