@@ -1,0 +1,24 @@
+packages:
+  "framer-motion": "For page transitions and interactive animations"
+  "clsx": "Class merging utility"
+  "tailwind-merge": "Tailwind class merging utility"
+  "date-fns": "For date formatting in lists and tables"
+  "react-hook-form": "For form state management"
+  "@hookform/resolvers": "For Zod form validation"
+  "zod": "For schema validation"
+
+images:
+  - path: "artifacts/earnflow/public/images/hero-bg.png"
+    description: "Abstract premium dark mesh gradient background in deep zinc and black, with subtle glowing neon teal and emerald green accents and soft light leaks"
+    aspect_ratio: "16:9"
+  - path: "artifacts/earnflow/public/images/logo.png"
+    description: "Minimal premium geometric logo mark combining a stylized letter E and an upward trend arrow, bright glowing teal on a transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/earnflow/public/images/admin-bg.png"
+    description: "Subtle dark tech geometric pattern background, very low opacity, dark grey and black"
+    aspect_ratio: "16:9"
+
+notes:
+  - Global window.fetch is overridden to automatically inject the JWT token from localStorage into all /api/ requests.
+  - Using generated React Query hooks from @workspace/api-client-react.
+  - Assume /api/ offers full CRUD based on the generated OpenAPI spec.
