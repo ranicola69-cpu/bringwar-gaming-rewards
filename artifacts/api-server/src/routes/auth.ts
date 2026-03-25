@@ -2,11 +2,14 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { signToken, requireAuth } from "../lib/auth.js";
 import { nanoid } from "nanoid";
 
 const router = Router();
+
+const REFERRAL_BONUS = 250;  // pts awarded to referrer
+const WELCOME_BONUS = 50;    // pts awarded to new user on signup
 
 router.post("/register", async (req, res) => {
   try {
@@ -28,27 +31,47 @@ router.post("/register", async (req, res) => {
       return;
     }
 
-    let referredBy: number | undefined;
+    let referrer: typeof usersTable.$inferSelect | undefined;
     if (referralCode) {
-      const [referrer] = await db.select().from(usersTable).where(eq(usersTable.referralCode, referralCode));
-      if (referrer) referredBy = referrer.id;
+      const [found] = await db.select().from(usersTable).where(eq(usersTable.referralCode, referralCode.trim().toUpperCase()));
+      if (found) referrer = found;
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const newReferralCode = nanoid(8).toUpperCase();
 
+    // New user starts with welcome bonus
     const [user] = await db.insert(usersTable).values({
       username,
       email,
       passwordHash,
       referralCode: newReferralCode,
-      referredBy,
+      referredBy: referrer?.id,
+      pointsBalance: WELCOME_BONUS,
+      totalEarned: WELCOME_BONUS,
     }).returning();
+
+    // Credit the referrer bonus immediately
+    if (referrer) {
+      await db
+        .update(usersTable)
+        .set({
+          pointsBalance: sql`${usersTable.pointsBalance} + ${REFERRAL_BONUS}`,
+          totalEarned: sql`${usersTable.totalEarned} + ${REFERRAL_BONUS}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(usersTable.id, referrer.id));
+    }
 
     const token = signToken(user.id);
     const { passwordHash: _, ...safeUser } = user;
 
-    res.json({ user: { ...safeUser, role: user.role }, token });
+    res.json({
+      user: { ...safeUser, role: user.role },
+      token,
+      welcomeBonus: WELCOME_BONUS,
+      referralBonusAwarded: !!referrer,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Registration failed" });
