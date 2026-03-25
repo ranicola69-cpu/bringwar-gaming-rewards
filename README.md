@@ -1,75 +1,54 @@
 <div align="center">
 
-```
-██████╗ ██████╗ ██╗███╗   ██╗ ██████╗ ██╗    ██╗ █████╗ ██████╗ 
-██╔══██╗██╔══██╗██║████╗  ██║██╔════╝ ██║    ██║██╔══██╗██╔══██╗
-██████╔╝██████╔╝██║██╔██╗ ██║██║  ███╗██║ █╗ ██║███████║██████╔╝
-██╔══██╗██╔══██╗██║██║╚██╗██║██║   ██║██║███╗██║██╔══██║██╔══██╗
-██████╔╝██║  ██║██║██║ ╚████║╚██████╔╝╚███╔███╔╝██║  ██║██║  ██║
-╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝
-```
+# 🎮 BRINGWAR Gaming Rewards
 
-# BRINGWAR GAMING REWARDS
+### *Play. Win. Earn.*
 
-**Earn & Redeem Rewards Across BRINGWAR Games**
-
-*DPHMS · 2026*
-
----
-
-[![Download APK](https://img.shields.io/badge/⬇%20DOWNLOAD%20APK-v1.1.0-red?style=for-the-badge&logo=android)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v1.1.0/BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk)
-&nbsp;&nbsp;
-[![Donate via CashApp](https://img.shields.io/badge/💸%20DONATE-%24ranicola1-00D632?style=for-the-badge&logo=cashapp)](https://cash.app/$ranicola1)
-&nbsp;&nbsp;
-[![Donate via PayPal](https://img.shields.io/badge/💰%20PAYPAL-Donate-003087?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate?business=Ranicola69%40gmail.com)
+[![Download APK](https://img.shields.io/badge/Download%20APK-v1.1.0-black?style=for-the-badge&logo=android&logoColor=white)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v1.1.0/BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk)
+[![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/latest)
+[![DPHMS](https://img.shields.io/badge/DPHMS-Gaming-8B0000?style=for-the-badge)](https://github.com/ranicola69-cpu)
 
 </div>
 
 ---
 
-## What Is BRINGWAR?
-
-BRINGWAR is a competitive gaming ecosystem under DPHMS. The Rewards app lets players earn, track, and redeem rewards across all BRINGWAR titles.
+> A gaming rewards platform that connects players to real-money prize pools. Win tournaments, complete missions, and cash out directly.
 
 ---
 
-## Features
+## 📲 Install
+
+```
+1. Download BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk
+2. Android Settings → Unknown Sources → Enable
+3. Open the APK → Install → Launch
+```
+
+---
+
+## 🏆 Features
 
 | Feature | Description |
-|---|---|
-| 🎮 Rewards Tracking | Earn points across all BRINGWAR games |
-| 🏆 Leaderboards | See where you rank |
-| 💰 Redemption | Redeem rewards in-game or for real value |
-| 📲 Cross-Game | One account, all BRINGWAR titles |
+|---------|-------------|
+| **Prize Pools** | Real cash tournaments |
+| **Mission Board** | Daily and weekly challenges |
+| **Leaderboard** | Live rankings across all users |
+| **Wallet** | Instant payout system |
+| **Game Catalog** | Supported titles and modes |
 
 ---
 
-## Download
+## 💸 Support Development
 
-<div align="center">
-
-[![Download APK](https://img.shields.io/badge/Android%20APK-BRINGWAR--Gaming--Rewards--v1.1.0.apk-red?style=flat-square&logo=android)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v1.1.0/BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk)
-
-Requires Android 8.0+. Enable *Install from unknown sources* before installing.
-
-</div>
-
----
-
-## Support the Work
-
-<div align="center">
-
-[![CashApp](https://img.shields.io/badge/CashApp-%24ranicola1-00D632?style=for-the-badge&logo=cashapp&logoColor=white)](https://cash.app/$ranicola1)
-
-[![PayPal](https://img.shields.io/badge/PayPal-Ranicola69%40gmail.com-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/donate?business=Ranicola69%40gmail.com)
-
-*All proceeds support independent research and development under DPHMS.*
-
-</div>
+| Method | Address |
+|--------|---------|
+| **CashApp** | `$ranicola1` |
+| **PayPal** | `Ranicola69@gmail.com` |
 
 ---
 
 <div align="center">
-<sub>DPHMS · 2026 · All rights reserved</sub>
+
+*DPHMS — BRINGWAR Gaming Division*
+
 </div>
