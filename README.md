@@ -4,7 +4,7 @@
 
 ### *Play. Win. Earn.*
 
-[![Download APK](https://img.shields.io/badge/Download%20APK-v1.1.0-black?style=for-the-badge&logo=android&logoColor=white)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v1.1.0/BRINGWAR-Gaming-Rewards-v1.1.0-debug.apk)
+[![Download APK](https://img.shields.io/badge/Download%20APK-v0.1.0--beta-black?style=for-the-badge&logo=android&logoColor=white)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/download/v0.1.0-beta/BRINGWAR-Gaming-Rewards-v0.1.0-beta.apk)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/ranicola69-cpu/bringwar-gaming-rewards/releases/latest)
 [![DPHMS](https://img.shields.io/badge/DPHMS-Gaming-8B0000?style=for-the-badge)](https://github.com/ranicola69-cpu)
 
