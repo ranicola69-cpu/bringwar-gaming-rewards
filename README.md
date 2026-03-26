@@ -59,4 +59,4 @@
 | App | Description | Link |
 |-----|-------------|------|
 | [Arbiter's Grammar](https://github.com/ranicola69-cpu/arbiters-grammar) | 30 laws of manipulation and control | [Web Version](https://dphms-apps.replit.app/arbiters-grammar/) |
-| [Secure Guard](https://github.com/ranicola69-cpu/secure-guard-blu-g64) | Military-grade Android security suite | [APK v0.1.0-beta](https://github.com/ranicola69-cpu/secure-guard-blu-g64/releases/download/v0.1.0-beta/secure-guard-v0.1.0-beta.apk) |
+| [Secure Guard](https://github.com/ranicola69-cpu/secure-guard-blu-g64) | Military-grade Android security suite | [APK v0.1.0-beta](https://github.com/ranicola69-cpu/secure-guard-blu-g64/releases/download/v0.1.0-beta/SecureGuard-0.1.0-beta.apk) |
