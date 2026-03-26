@@ -5,6 +5,8 @@ const config: CapacitorConfig = {
   appName: 'BRINGWAR Gaming Rewards',
   webDir: 'dist/public',
   server: {
+    url: 'https://arbitrage-autonomy.replit.app',
+    cleartext: false,
     androidScheme: 'https'
   },
   android: {
